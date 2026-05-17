@@ -80,6 +80,32 @@ function validateUrl(name: string) {
   }
 }
 
+function validateUrlList(name: string) {
+  const value = readRequiredEnv(name);
+  const items = value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (!items.length) {
+    throw new Error(`Invalid environment variable: ${name} must include at least one valid URL`);
+  }
+
+  return [...new Set(items.map((item) => {
+    try {
+      const parsedUrl = new URL(item);
+
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error();
+      }
+
+      return parsedUrl.toString().replace(/\/$/, "");
+    } catch {
+      throw new Error(`Invalid environment variable: ${name} must contain valid http or https URLs`);
+    }
+  }))];
+}
+
 function validateMongoUri(name: string) {
   const value = readRequiredEnv(name);
 
@@ -96,6 +122,7 @@ export const env = {
   JWT_SECRET: validateSecret("JWT_SECRET"),
   GEMINI_API_KEY: readRequiredEnv("GEMINI_API_KEY"),
   CLIENT_URL: validateUrl("CLIENT_URL"),
+  CLIENT_URLS: validateUrlList("CLIENT_URL"),
   NODE_ENV: validateNodeEnv(process.env.NODE_ENV?.trim() || "development"),
   ENV_PATH: resolvedEnvPath || null,
 } as const;

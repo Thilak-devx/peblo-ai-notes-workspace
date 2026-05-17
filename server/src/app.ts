@@ -14,13 +14,19 @@ export function createApp() {
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
 
+  const allowedOrigins = new Set([
+    ...env.CLIENT_URLS,
+    "https://peblo-ai-notes-workspace-client.vercel.app",
+    "http://localhost:3000",
+  ]);
+
   app.use(requestContext);
   app.use(applySecurityHeaders);
 
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || origin === env.CLIENT_URL) {
+        if (!origin || allowedOrigins.has(origin)) {
           callback(null, true);
           return;
         }
@@ -28,6 +34,9 @@ export function createApp() {
         callback(new ApiError(403, "CORS origin denied"));
       },
       credentials: true,
+      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+      optionsSuccessStatus: 204,
     }),
   );
 

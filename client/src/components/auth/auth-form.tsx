@@ -94,8 +94,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           });
         }
 
-        router.push(nextPath);
-        router.refresh();
+        router.replace(nextPath);
       } catch (submitError) {
         setError(
           submitError instanceof Error
