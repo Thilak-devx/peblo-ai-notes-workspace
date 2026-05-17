@@ -10,6 +10,7 @@ export type AuthResponse = {
   status: "success" | "ok";
   message?: string;
   user: AuthUser;
+  token?: string;
 };
 
 export type AuthStatusResponse = {

@@ -1,14 +1,16 @@
 import type { NextFunction, Request, Response } from "express";
 import { User } from "../models/User";
 import { ApiError } from "../utils/api-error";
-import { getAuthCookieName, verifyAuthToken } from "../utils/auth";
+import { extractBearerToken, getAuthCookieName, verifyAuthToken } from "../utils/auth";
 
 export async function protectRoute(
   request: Request,
   _response: Response,
   next: NextFunction,
 ) {
-  const token = request.cookies[getAuthCookieName()];
+  const token =
+    request.cookies[getAuthCookieName()] ||
+    extractBearerToken(request.header("authorization"));
 
   if (!token) {
     next(new ApiError(401, "Authentication required"));

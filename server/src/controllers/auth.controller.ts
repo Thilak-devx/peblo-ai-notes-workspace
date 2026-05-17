@@ -85,6 +85,7 @@ export const signup = asyncHandler(async (request: Request, response: Response) 
   response.status(201).json({
     status: "success",
     message: "Account created successfully",
+    token,
     user: sanitizeUser(user),
   });
 });
@@ -109,6 +110,7 @@ export const login = asyncHandler(async (request: Request, response: Response) =
   response.status(200).json({
     status: "success",
     message: "Logged in successfully",
+    token,
     user: sanitizeUser(user),
   });
 });

@@ -7,6 +7,10 @@ import {
   logoutRequest,
   signupRequest,
 } from "@/lib/api/auth";
+import {
+  clearStoredAuthToken,
+  setStoredAuthToken,
+} from "@/lib/auth-token";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import type { AuthUser } from "@/types/auth";
 
@@ -39,8 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const restoreSession = useEffectEvent(async () => {
     try {
       const response = await fetchCurrentUserRequest();
+      if (response?.token) {
+        setStoredAuthToken(response.token);
+      }
+      if (!response) {
+        clearStoredAuthToken();
+      }
       setUser(response?.user ?? null);
     } catch {
+      clearStoredAuthToken();
       setUser(null);
     } finally {
       setIsBootstrapping(false);
@@ -97,18 +108,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async login(payload) {
         try {
           const response = await loginRequest(payload);
+          if (response.token) {
+            setStoredAuthToken(response.token);
+          }
           setUser(response.user);
           return response.user;
         } catch (error) {
+          clearStoredAuthToken();
           throw new Error(getApiErrorMessage(error, "Unable to sign in"));
         }
       },
       async signup(payload) {
         try {
           const response = await signupRequest(payload);
+          if (response.token) {
+            setStoredAuthToken(response.token);
+          }
           setUser(response.user);
           return response.user;
         } catch (error) {
+          clearStoredAuthToken();
           throw new Error(getApiErrorMessage(error, "Unable to create account"));
         }
       },
@@ -116,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           await logoutRequest();
         } finally {
+          clearStoredAuthToken();
           setUser(null);
         }
       },

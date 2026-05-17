@@ -41,3 +41,17 @@ export function clearAuthCookie(response: Response) {
 export function getAuthCookieName() {
   return cookieName;
 }
+
+export function extractBearerToken(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const [scheme, token] = value.split(" ");
+
+  if (scheme?.toLowerCase() !== "bearer" || !token) {
+    return null;
+  }
+
+  return token.trim();
+}

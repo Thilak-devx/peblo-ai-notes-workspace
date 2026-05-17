@@ -200,6 +200,10 @@ export function parseAuthResponse(payload: unknown): AuthResponse {
     message:
       payload.message === undefined ? undefined : expectString(payload.message, "message"),
     user: parseAuthUser(payload.user),
+    token:
+      payload.token === undefined || payload.token === null
+        ? undefined
+        : expectString(payload.token, "token"),
   };
 }
 
